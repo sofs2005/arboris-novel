@@ -7,7 +7,7 @@ from sqlalchemy import JSON, BigInteger, DateTime, Float, ForeignKey, Integer, S
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base_class import Base
 
 # 自定义列类型：兼容跨数据库环境
 BIGINT_PK_TYPE = BigInteger().with_variant(Integer, "sqlite")

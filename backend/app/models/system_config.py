@@ -1,7 +1,7 @@
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..db.base import Base
+from ..db.base_class import Base
 
 
 class SystemConfig(Base):

@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base_class import Base
 
 
 class LLMConfig(Base):

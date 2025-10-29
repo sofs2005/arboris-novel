@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base_class import Base
 from .novel import BIGINT_PK_TYPE, NovelProject
 
 

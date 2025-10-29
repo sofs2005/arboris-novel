@@ -6,7 +6,7 @@ from typing import Optional
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..db.base import Base
+from ..db.base_class import Base
 from .novel import BIGINT_PK_TYPE, NovelProject, Chapter
 
 

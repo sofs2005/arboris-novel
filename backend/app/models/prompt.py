@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy import DateTime, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..db.base import Base
+from ..db.base_class import Base
 
 
 class Prompt(Base):

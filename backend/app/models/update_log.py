@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..db.base import Base
+from ..db.base_class import Base
 
 
 class UpdateLog(Base):
