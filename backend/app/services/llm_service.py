@@ -226,9 +226,7 @@ class LLMService:
         provider = await self._get_config_value("embedding.provider") or "openai"
         if provider == "ollama":
             default_model = await self._get_config_value("ollama.embedding_model") or "nomic-embed-text:latest"
-        elif provider == "jina":
-            default_model = await self._get_config_value("jina.embedding_model") or "jina-embeddings-v2-base-en"
-        else:  # openai
+        else:  # openai or jina
             default_model = await self._get_config_value("embedding.model") or "text-embedding-3-large"
         target_model = model or default_model
 

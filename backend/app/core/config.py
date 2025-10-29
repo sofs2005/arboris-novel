@@ -113,11 +113,6 @@ class Settings(BaseSettings):
         env="OLLAMA_EMBEDDING_MODEL",
         description="Ollama 嵌入模型名称",
     )
-    jina_embedding_model: str = Field(
-        default="jina-embeddings-v2-base-en",
-        env="JINA_EMBEDDING_MODEL",
-        description="Jina 嵌入模型名称",
-    )
     vector_db_url: Optional[str] = Field(
         default=None,
         env="VECTOR_DB_URL",

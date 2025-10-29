@@ -142,9 +142,4 @@ SYSTEM_CONFIG_DEFAULTS: list[SystemConfigDefault] = [
         value_getter=lambda config: config.ollama_embedding_model,
         description="Ollama 嵌入模型名称。",
     ),
-    SystemConfigDefault(
-        key="jina.embedding_model",
-        value_getter=lambda config: config.jina_embedding_model,
-        description="Jina 嵌入模型名称。",
-    ),
 ]
