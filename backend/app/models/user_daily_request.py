@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import Date, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..db.base import Base
+from ..db.base_class import Base
 
 
 class UserDailyRequest(Base):
