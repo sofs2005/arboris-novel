@@ -644,11 +644,11 @@ class NovelService:
                 "total": len(chapters),
             }
         elif section == NovelSectionType.PLOT_ARCS:
-            plot_arcs = await self.plot_arc_service.list_plot_arcs(project.id)
-            data = {"plot_arcs": [arc.model_dump() for arc in plot_arcs]}
+            plot_arcs = await self.plot_arc_service.get_plot_arcs_for_project(project.id)
+            data = PlotArcsSectionData(plot_arcs=[PlotArc.model_validate(arc) for arc in plot_arcs])
         elif section == NovelSectionType.WRITING_PRINCIPLES:
-            writing_principles = await self.writing_principle_service.list_writing_principles(project.id)
-            data = {"writing_principles": [p.model_dump() for p in writing_principles]}
+            writing_principles = await self.writing_principle_service.get_writing_principles_for_project(project.id)
+            data = WritingPrinciplesSectionData(writing_principles=[WritingPrinciple.model_validate(p) for p in writing_principles])
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="未知的章节类型")
 
