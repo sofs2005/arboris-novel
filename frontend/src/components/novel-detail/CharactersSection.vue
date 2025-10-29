@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { computed, defineEmits, defineProps } from 'vue'
 
-interface CharacterItem {
+export interface CharacterItem {
   name?: string
   identity?: string
   personality?: string

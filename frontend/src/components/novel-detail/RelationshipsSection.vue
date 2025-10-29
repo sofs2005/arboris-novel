@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed, defineEmits, defineProps } from 'vue'
 
-interface RelationshipItem {
+export interface RelationshipItem {
   character_from?: string
   character_to?: string
   relationship_type?: string

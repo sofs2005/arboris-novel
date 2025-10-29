@@ -408,7 +408,7 @@ import { AdminAPI } from '@/api/admin'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked'
 
-interface ChapterItem {
+export interface ChapterItem {
   chapter_number: number
   title?: string | null
   summary?: string | null

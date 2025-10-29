@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { defineEmits, defineProps } from 'vue'
 
-interface OverviewData {
+export interface OverviewData {
   one_sentence_summary?: string | null
   target_audience?: string | null
   genre?: string | null
