@@ -419,9 +419,15 @@ const loadSection = async (section: SectionKey, force = false) => {
       overviewMeta.title = response.data?.title || overviewMeta.title
       overviewMeta.updated_at = response.data?.updated_at || null
     }
-  } catch (error) {
-    console.error('加载模块失败:', error)
-    sectionError[section] = error instanceof Error ? error.message : '加载失败'
+  } catch (error: any) {
+    console.error(`加载模块 ${section} 失败:`, error)
+    let errorMessage = '加载失败，请稍后重试。'
+    if (error.response && error.response.data && error.response.data.detail) {
+      errorMessage = `加载失败: ${error.response.data.detail}`
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    sectionError[section] = errorMessage
   } finally {
     sectionLoading[section] = false
   }

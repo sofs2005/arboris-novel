@@ -96,6 +96,8 @@ from ..schemas.novel import (
     NovelSectionResponse,
     NovelSectionType,
 )
+from ..services.plot_arc_service import PlotArcService
+from ..services.writing_principle_service import WritingPrincipleService
 
 
 class NovelService:
@@ -104,6 +106,8 @@ class NovelService:
     def __init__(self, session: AsyncSession):
         self.session = session
         self.repo = NovelRepository(session)
+        self.plot_arc_service = PlotArcService(session)
+        self.writing_principle_service = WritingPrincipleService(session)
 
     # ------------------------------------------------------------------
     # 项目与摘要
@@ -140,7 +144,7 @@ class NovelService:
         section: NovelSectionType,
     ) -> NovelSectionResponse:
         project = await self.ensure_project_owner(project_id, user_id)
-        return self._build_section_response(project, section)
+        return await self._build_section_response(project, section)
 
     async def get_chapter_schema(
         self,
@@ -477,7 +481,7 @@ class NovelService:
         project = await self.repo.get_by_id(project_id)
         if not project:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="项目不存在")
-        return self._build_section_response(project, section)
+        return await self._build_section_response(project, section)
 
     async def get_chapter_schema_for_admin(
         self,
@@ -584,7 +588,7 @@ class NovelService:
             chapter_outline=[],
         )
 
-    def _build_section_response(
+    async def _build_section_response(
         self,
         project: NovelProject,
         section: NovelSectionType,
@@ -639,6 +643,12 @@ class NovelService:
                 "chapters": chapters,
                 "total": len(chapters),
             }
+        elif section == NovelSectionType.PLOT_ARCS:
+            plot_arcs = await self.plot_arc_service.list_plot_arcs(project.id)
+            data = {"plot_arcs": [arc.model_dump() for arc in plot_arcs]}
+        elif section == NovelSectionType.WRITING_PRINCIPLES:
+            writing_principles = await self.writing_principle_service.list_writing_principles(project.id)
+            data = {"writing_principles": [p.model_dump() for p in writing_principles]}
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="未知的章节类型")
 
