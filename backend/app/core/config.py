@@ -80,7 +80,7 @@ class Settings(BaseSettings):
     embedding_provider: str = Field(
         default="openai",
         env="EMBEDDING_PROVIDER",
-        description="嵌入模型提供方，支持 openai 或 ollama",
+        description="嵌入模型提供方，支持 openai, ollama, 或 jina",
     )
     embedding_base_url: Optional[AnyUrl] = Field(
         default=None,
@@ -112,6 +112,11 @@ class Settings(BaseSettings):
         default="nomic-embed-text:latest",
         env="OLLAMA_EMBEDDING_MODEL",
         description="Ollama 嵌入模型名称",
+    )
+    jina_embedding_model: str = Field(
+        default="jina-embeddings-v2-base-en",
+        env="JINA_EMBEDDING_MODEL",
+        description="Jina 嵌入模型名称",
     )
     vector_db_url: Optional[str] = Field(
         default=None,
@@ -195,8 +200,8 @@ class Settings(BaseSettings):
     def _normalize_embedding_provider(cls, value: Optional[str]) -> str:
         """限制嵌入模型提供方的取值范围。"""
         candidate = (value or "openai").strip().lower()
-        if candidate not in {"openai", "ollama"}:
-            raise ValueError("EMBEDDING_PROVIDER 仅支持 openai 或 ollama")
+        if candidate not in {"openai", "ollama", "jina"}:
+            raise ValueError("EMBEDDING_PROVIDER 仅支持 openai, ollama, 或 jina")
         return candidate
 
     @validator("logging_level", pre=True)

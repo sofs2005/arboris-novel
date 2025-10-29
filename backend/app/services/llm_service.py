@@ -222,13 +222,14 @@ class LLMService:
         user_id: Optional[int] = None,
         model: Optional[str] = None,
     ) -> List[float]:
-        """生成文本向量，用于章节 RAG 检索，支持 openai 与 ollama 双提供方。"""
+        """生成文本向量，用于章节 RAG 检索，支持 openai, ollama, jina 三提供方。"""
         provider = await self._get_config_value("embedding.provider") or "openai"
-        default_model = (
-            await self._get_config_value("ollama.embedding_model") or "nomic-embed-text:latest"
-            if provider == "ollama"
-            else await self._get_config_value("embedding.model") or "text-embedding-3-large"
-        )
+        if provider == "ollama":
+            default_model = await self._get_config_value("ollama.embedding_model") or "nomic-embed-text:latest"
+        elif provider == "jina":
+            default_model = await self._get_config_value("jina.embedding_model") or "jina-embeddings-v2-base-en"
+        else:  # openai
+            default_model = await self._get_config_value("embedding.model") or "text-embedding-3-large"
         target_model = model or default_model
 
         if provider == "ollama":
@@ -262,7 +263,49 @@ class LLMService:
                 return []
             if not isinstance(embedding, list):
                 embedding = list(embedding)
-        else:
+        elif provider == "jina":
+            api_key = await self._get_config_value("embedding.api_key")
+            if not api_key:
+                logger.error("Jina embedding provider requires an API key.")
+                return []
+
+            base_url = await self._get_config_value("embedding.base_url") or "https://api.jina.ai/v1"
+            url = f"{str(base_url).rstrip('/')}/embeddings"
+
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            }
+            data = {"model": target_model, "input": [text]}
+
+            embedding: Optional[List[float]] = []
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(url, headers=headers, json=data, timeout=60.0)
+                    response.raise_for_status()
+                    response_data = response.json()
+                    if response_data.get("data") and isinstance(response_data["data"], list) and len(response_data["data"]) > 0:
+                        embedding = response_data["data"][0].get("embedding")
+                    else:
+                        logger.warning("Jina API response did not contain expected data structure: %s", response_data)
+                        return []
+            except httpx.HTTPStatusError as exc:
+                logger.error(
+                    "Jina embedding request failed with status %d: %s",
+                    exc.response.status_code,
+                    exc.response.text,
+                    exc_info=True,
+                )
+                return []
+            except Exception as exc:
+                logger.error(
+                    "Jina embedding request failed: model=%s error=%s",
+                    target_model,
+                    exc,
+                    exc_info=True,
+                )
+                return []
+        else:  # openai
             config = await self._resolve_llm_config(user_id)
             api_key = await self._get_config_value("embedding.api_key") or config["api_key"]
             base_url = await self._get_config_value("embedding.base_url") or config.get("base_url")
@@ -302,11 +345,12 @@ class LLMService:
     async def get_embedding_dimension(self, model: Optional[str] = None) -> Optional[int]:
         """获取嵌入向量维度，优先返回缓存结果，其次读取配置。"""
         provider = await self._get_config_value("embedding.provider") or "openai"
-        default_model = (
-            await self._get_config_value("ollama.embedding_model") or "nomic-embed-text:latest"
-            if provider == "ollama"
-            else await self._get_config_value("embedding.model") or "text-embedding-3-large"
-        )
+        if provider == "ollama":
+            default_model = await self._get_config_value("ollama.embedding_model") or "nomic-embed-text:latest"
+        elif provider == "jina":
+            default_model = await self._get_config_value("jina.embedding_model") or "jina-embeddings-v2-base-en"
+        else:  # openai
+            default_model = await self._get_config_value("embedding.model") or "text-embedding-3-large"
         target_model = model or default_model
         if target_model in self._embedding_dimensions:
             return self._embedding_dimensions[target_model]

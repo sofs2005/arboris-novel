@@ -110,7 +110,7 @@ SYSTEM_CONFIG_DEFAULTS: list[SystemConfigDefault] = [
     SystemConfigDefault(
         key="embedding.provider",
         value_getter=lambda config: config.embedding_provider,
-        description="嵌入模型提供方，支持 openai 或 ollama。",
+        description="嵌入模型提供方，支持 openai, ollama, 或 jina。",
     ),
     SystemConfigDefault(
         key="embedding.api_key",
@@ -141,5 +141,10 @@ SYSTEM_CONFIG_DEFAULTS: list[SystemConfigDefault] = [
         key="ollama.embedding_model",
         value_getter=lambda config: config.ollama_embedding_model,
         description="Ollama 嵌入模型名称。",
+    ),
+    SystemConfigDefault(
+        key="jina.embedding_model",
+        value_getter=lambda config: config.jina_embedding_model,
+        description="Jina 嵌入模型名称。",
     ),
 ]
