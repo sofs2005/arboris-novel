@@ -238,6 +238,8 @@ import CharactersSection from '@/components/novel-detail/CharactersSection.vue'
 import RelationshipsSection from '@/components/novel-detail/RelationshipsSection.vue'
 import ChapterOutlineSection from '@/components/novel-detail/ChapterOutlineSection.vue'
 import ChaptersSection from '@/components/novel-detail/ChaptersSection.vue'
+import PlotArcsSection from '@/components/novel-detail/PlotArcsSection.vue'
+import WritingPrinciplesSection from '@/components/novel-detail/WritingPrinciplesSection.vue'
 
 interface Props {
   isAdmin?: boolean
@@ -262,7 +264,9 @@ const sections: Array<{ key: SectionKey; label: string; description: string }> =
   { key: 'characters', label: '主要角色', description: '人物性格与目标' },
   { key: 'relationships', label: '人物关系', description: '角色之间的联系' },
   { key: 'chapter_outline', label: '章节大纲', description: props.isAdmin ? '故事章节规划' : '故事结构规划' },
-  { key: 'chapters', label: '章节内容', description: props.isAdmin ? '生成章节与正文' : '生成状态与摘要' }
+  { key: 'chapters', label: '章节内容', description: props.isAdmin ? '生成章节与正文' : '生成状态与摘要' },
+  { key: 'plot_arcs', label: '剧情弧光', description: '管理伏笔与关键情节' },
+  { key: 'writing_principles', label: '写作原则', description: '自定义AI写作宪法' }
 ]
 
 const sectionComponents: Record<SectionKey, any> = {
@@ -271,7 +275,9 @@ const sectionComponents: Record<SectionKey, any> = {
   characters: CharactersSection,
   relationships: RelationshipsSection,
   chapter_outline: ChapterOutlineSection,
-  chapters: ChaptersSection
+  chapters: ChaptersSection,
+  plot_arcs: PlotArcsSection,
+  writing_principles: WritingPrinciplesSection
 }
 
 // Section icons as functional components
@@ -307,6 +313,12 @@ const getSectionIcon = (key: SectionKey) => {
     chapters: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, [
       h('path', { d: 'M4 19.5A2.5 2.5 0 016.5 17H20' }),
       h('path', { d: 'M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z' })
+    ]),
+    plot_arcs: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, [
+        h('path', { d: 'M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48' })
+    ]),
+    writing_principles: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, [
+        h('path', { d: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z' })
     ])
   }
   return icons[key]
@@ -319,7 +331,9 @@ const sectionLoading = reactive<Record<SectionKey, boolean>>({
   characters: false,
   relationships: false,
   chapter_outline: false,
-  chapters: false
+  chapters: false,
+  plot_arcs: false,
+  writing_principles: false
 })
 const sectionError = reactive<Record<SectionKey, string | null>>({
   overview: null,
@@ -327,7 +341,9 @@ const sectionError = reactive<Record<SectionKey, string | null>>({
   characters: null,
   relationships: null,
   chapter_outline: null,
-  chapters: null
+  chapters: null,
+  plot_arcs: null,
+  writing_principles: null
 })
 
 const overviewMeta = reactive<{ title: string; updated_at: string | null }>({

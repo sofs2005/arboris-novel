@@ -75,6 +75,8 @@
           @show-evaluation-detail="showEvaluationDetailModal = true"
           @fetch-chapter-status="fetchChapterStatus"
           @edit-chapter="editChapterContent"
+          @check-consistency="checkConsistency"
+          @evaluate-writing="evaluateWriting"
           />
         </div>
       </div>
@@ -103,6 +105,13 @@
       @close="showGenerateOutlineModal = false"
       @generate="handleGenerateOutline"
     />
+    <EvaluationResultModal
+      :show="showEvaluationModal"
+      :title="evaluationModalTitle"
+      :content="evaluationModalContent"
+      :is-loading="isEvaluationLoading"
+      @close="showEvaluationModal = false"
+    />
   </div>
 </template>
 
@@ -110,7 +119,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNovelStore } from '@/stores/novel'
-import type { Chapter, ChapterOutline, ChapterGenerationResponse, ChapterVersion } from '@/api/novel'
+import { NovelAPI, type Chapter, type ChapterOutline, type ChapterGenerationResponse, type ChapterVersion } from '@/api/novel'
 import { globalAlert } from '@/composables/useAlert'
 import Tooltip from '@/components/Tooltip.vue'
 import WDHeader from '@/components/writing-desk/WDHeader.vue'
@@ -120,6 +129,7 @@ import WDVersionDetailModal from '@/components/writing-desk/WDVersionDetailModal
 import WDEvaluationDetailModal from '@/components/writing-desk/WDEvaluationDetailModal.vue'
 import WDEditChapterModal from '@/components/writing-desk/WDEditChapterModal.vue'
 import WDGenerateOutlineModal from '@/components/writing-desk/WDGenerateOutlineModal.vue'
+import EvaluationResultModal from '@/components/EvaluationResultModal.vue'
 
 interface Props {
   id: string
@@ -142,6 +152,13 @@ const showEditChapterModal = ref(false)
 const editingChapter = ref<ChapterOutline | null>(null)
 const isGeneratingOutline = ref(false)
 const showGenerateOutlineModal = ref(false)
+
+// Evaluation Modal State
+const showEvaluationModal = ref(false)
+const evaluationModalTitle = ref('')
+const evaluationModalContent = ref('')
+const isEvaluationLoading = ref(false)
+
 
 // 计算属性
 const project = computed(() => novelStore.currentProject)
@@ -585,6 +602,46 @@ const handleGenerateOutline = async (numChapters: number) => {
 onMounted(() => {
   loadProject()
 })
+
+const checkConsistency = async () => {
+  if (selectedChapterNumber.value === null || !project.value) return;
+
+  evaluationModalTitle.value = `第 ${selectedChapterNumber.value} 章 - 一致性检查`;
+  evaluationModalContent.value = '';
+  isEvaluationLoading.value = true;
+  showEvaluationModal.value = true;
+
+  try {
+    const response = await NovelAPI.checkConsistency(project.value.id, selectedChapterNumber.value);
+    evaluationModalContent.value = response.result;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误';
+    evaluationModalContent.value = `检查失败: ${message}`;
+    globalAlert.showError(message, '检查失败');
+  } finally {
+    isEvaluationLoading.value = false;
+  }
+};
+
+const evaluateWriting = async () => {
+  if (selectedChapterNumber.value === null || !project.value) return;
+
+  evaluationModalTitle.value = `第 ${selectedChapterNumber.value} 章 - 写作评估`;
+  evaluationModalContent.value = '';
+  isEvaluationLoading.value = true;
+  showEvaluationModal.value = true;
+
+  try {
+    const response = await NovelAPI.evaluateWriting(project.value.id, selectedChapterNumber.value);
+    evaluationModalContent.value = response.result;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误';
+    evaluationModalContent.value = `评估失败: ${message}`;
+    globalAlert.showError(message, '评估失败');
+  } finally {
+    isEvaluationLoading.value = false;
+  }
+};
 </script>
 
 <style scoped>

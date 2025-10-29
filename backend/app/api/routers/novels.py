@@ -19,10 +19,13 @@ from ...schemas.novel import (
     NovelSectionResponse,
     NovelSectionType,
 )
+from ...schemas.evaluation import EvaluationResult
 from ...schemas.user import UserInDB
+from ...services.consistency_check_service import ConsistencyCheckService
 from ...services.llm_service import LLMService
 from ...services.novel_service import NovelService
 from ...services.prompt_service import PromptService
+from ...services.writing_evaluation_service import WritingEvaluationService
 from ...utils.json_utils import remove_think_tags, sanitize_json_like_text, unwrap_markdown_json
 
 logger = logging.getLogger(__name__)
@@ -324,3 +327,57 @@ async def patch_blueprint(
     await novel_service.patch_blueprint(project_id, update_data)
     logger.info("项目 %s 局部更新蓝图字段：%s", project_id, list(update_data.keys()))
     return await novel_service.get_project_schema(project_id, current_user.id)
+
+
+@router.post("/{project_id}/chapters/{chapter_number}/check-consistency", response_model=EvaluationResult)
+async def check_chapter_consistency(
+    project_id: str,
+    chapter_number: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: UserInDB = Depends(get_current_user),
+) -> EvaluationResult:
+    """对指定章节执行一致性检查。"""
+    novel_service = NovelService(session)
+    llm_service = LLMService(session)
+    consistency_service = ConsistencyCheckService(session, llm_service)
+
+    project = await novel_service.ensure_project_owner(project_id, current_user.id)
+    chapter = await novel_service.get_or_create_chapter(project_id, chapter_number)
+    if not chapter.selected_version:
+        raise HTTPException(status_code=400, detail="Chapter has no selected version to check.")
+
+    logger.info("用户 %s 对项目 %s 第 %s 章执行一致性检查", current_user.id, project_id, chapter_number)
+    result = await consistency_service.check_chapter_consistency(project, chapter)
+
+    return EvaluationResult(
+        project_id=project_id,
+        chapter_number=chapter_number,
+        result=result,
+    )
+
+
+@router.post("/{project_id}/chapters/{chapter_number}/evaluate-writing", response_model=EvaluationResult)
+async def evaluate_chapter_writing(
+    project_id: str,
+    chapter_number: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: UserInDB = Depends(get_current_user),
+) -> EvaluationResult:
+    """根据写作原则评估指定章节。"""
+    novel_service = NovelService(session)
+    llm_service = LLMService(session)
+    evaluation_service = WritingEvaluationService(session, llm_service)
+
+    project = await novel_service.ensure_project_owner(project_id, current_user.id)
+    chapter = await novel_service.get_or_create_chapter(project_id, chapter_number)
+    if not chapter.selected_version:
+        raise HTTPException(status_code=400, detail="Chapter has no selected version to evaluate.")
+
+    logger.info("用户 %s 对项目 %s 第 %s 章执行写作评估", current_user.id, project_id, chapter_number)
+    result = await evaluation_service.evaluate_chapter(project, chapter)
+
+    return EvaluationResult(
+        project_id=project_id,
+        chapter_number=chapter_number,
+        result=result,
+    )

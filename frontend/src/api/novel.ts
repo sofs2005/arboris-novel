@@ -143,6 +143,33 @@ export interface NovelSectionResponse {
   data: Record<string, any>
 }
 
+export interface EvaluationResult {
+  project_id: string
+  chapter_number: number
+  result: string
+}
+
+export interface PlotArc {
+  id: number
+  project_id: string
+  description: string
+  status: 'unresolved' | 'resolved'
+  start_chapter_id?: number
+  resolved_chapter_id?: number
+}
+
+export interface WritingPrinciple {
+  id: number
+  project_id: string
+  risk_topic: string
+  core_problem?: string
+  guiding_principle?: string
+  macro_strategy?: string
+  micro_strategy?: string
+  is_enabled: boolean
+}
+
+
 // API 函数
 const NOVELS_BASE = `${API_BASE_URL}${API_PREFIX}/novels`
 const WRITER_PREFIX = '/api/writer'
@@ -287,6 +314,70 @@ export class NovelAPI {
         chapter_number: chapterNumber,
         content: content
       })
+    })
+  }
+
+  static async checkConsistency(projectId: string, chapterNumber: number): Promise<EvaluationResult> {
+    return request(`${NOVELS_BASE}/${projectId}/chapters/${chapterNumber}/check-consistency`, {
+      method: 'POST'
+    })
+  }
+
+  static async evaluateWriting(projectId: string, chapterNumber: number): Promise<EvaluationResult> {
+    return request(`${NOVELS_BASE}/${projectId}/chapters/${chapterNumber}/evaluate-writing`, {
+      method: 'POST'
+    })
+  }
+}
+
+export class PlotArcAPI {
+  static async getPlotArcs(projectId: string): Promise<PlotArc[]> {
+    return request(`${NOVELS_BASE}/${projectId}/plot-arcs`)
+  }
+
+  static async createPlotArc(projectId: string, data: Partial<PlotArc>): Promise<PlotArc> {
+    return request(`${NOVELS_BASE}/${projectId}/plot-arcs`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  static async updatePlotArc(projectId: string, arcId: number, data: Partial<PlotArc>): Promise<PlotArc> {
+    return request(`${NOVELS_BASE}/${projectId}/plot-arcs/${arcId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  static async deletePlotArc(projectId: string, arcId: number): Promise<void> {
+    return request(`${NOVELS_BASE}/${projectId}/plot-arcs/${arcId}`, {
+      method: 'DELETE'
+    })
+  }
+}
+
+export class WritingPrincipleAPI {
+  static async getWritingPrinciples(projectId: string): Promise<WritingPrinciple[]> {
+    return request(`${NOVELS_BASE}/${projectId}/writing-principles`)
+  }
+
+  static async createWritingPrinciple(projectId: string, data: Partial<WritingPrinciple>): Promise<WritingPrinciple> {
+    return request(`${NOVELS_BASE}/${projectId}/writing-principles`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  static async updateWritingPrinciple(projectId: string, principleId: number, data: Partial<WritingPrinciple>): Promise<WritingPrinciple> {
+    return request(`${NOVELS_BASE}/${projectId}/writing-principles/${principleId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  static async deleteWritingPrinciple(projectId: string, principleId: number): Promise<void> {
+    return request(`${NOVELS_BASE}/${projectId}/writing-principles/${principleId}`, {
+      method: 'DELETE'
     })
   }
 }
