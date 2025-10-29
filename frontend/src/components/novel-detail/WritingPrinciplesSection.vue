@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { WritingPrincipleAPI, type WritingPrinciple } from '@/api/novel';
+import { WritingPrincipleAPI, type WritingPrinciple, type WritingPrincipleForm } from '@/api/novel';
 
 const route = useRoute();
 const projectId = route.params.id as string;
@@ -59,7 +59,7 @@ const error = ref<string | null>(null);
 
 const isCreating = ref(false);
 const editingPrinciple = ref<WritingPrinciple | null>(null);
-const form = ref({
+const form = ref<WritingPrincipleForm>({
   risk_topic: '',
   core_problem: '',
   guiding_principle: '',
@@ -80,7 +80,12 @@ const loadPrinciples = async () => {
 
 const startEdit = (principle: WritingPrinciple) => {
   editingPrinciple.value = principle;
-  form.value = { ...principle };
+  form.value = {
+    risk_topic: principle.risk_topic,
+    core_problem: principle.core_problem,
+    guiding_principle: principle.guiding_principle,
+    is_enabled: principle.is_enabled
+  };
   isCreating.value = false;
 };
 

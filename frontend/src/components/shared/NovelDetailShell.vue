@@ -470,8 +470,12 @@ const componentProps = computed(() => {
       return { outline: data?.chapter_outline || [], editable }
     case 'chapters':
       return { chapters: data?.chapters || [], isAdmin: props.isAdmin }
+    case 'plot_arcs':
+      return { arcs: data?.plot_arcs || [], editable }
+    case 'writing_principles':
+      return { principles: data?.writing_principles || [], editable }
     default:
-      return {}
+      return { data: data || null, editable }
   }
 })
 

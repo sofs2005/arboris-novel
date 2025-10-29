@@ -136,7 +136,7 @@ export interface DeleteNovelsResponse {
   message: string
 }
 
-export type NovelSectionType = 'overview' | 'world_setting' | 'characters' | 'relationships' | 'chapter_outline' | 'chapters'
+export type NovelSectionType = 'overview' | 'world_setting' | 'characters' | 'relationships' | 'chapter_outline' | 'chapters' | 'plot_arcs' | 'writing_principles'
 
 export interface NovelSectionResponse {
   section: NovelSectionType
@@ -166,6 +166,19 @@ export interface WritingPrinciple {
   guiding_principle?: string
   macro_strategy?: string
   micro_strategy?: string
+  is_enabled: boolean
+}
+
+// Form types for creating/updating
+export interface PlotArcForm {
+  description: string
+  status: 'unresolved' | 'resolved'
+}
+
+export interface WritingPrincipleForm {
+  risk_topic: string
+  core_problem?: string
+  guiding_principle?: string
   is_enabled: boolean
 }
 
@@ -335,14 +348,14 @@ export class PlotArcAPI {
     return request(`${NOVELS_BASE}/${projectId}/plot-arcs`)
   }
 
-  static async createPlotArc(projectId: string, data: Partial<PlotArc>): Promise<PlotArc> {
+  static async createPlotArc(projectId: string, data: PlotArcForm): Promise<PlotArc> {
     return request(`${NOVELS_BASE}/${projectId}/plot-arcs`, {
       method: 'POST',
       body: JSON.stringify(data)
     })
   }
 
-  static async updatePlotArc(projectId: string, arcId: number, data: Partial<PlotArc>): Promise<PlotArc> {
+  static async updatePlotArc(projectId: string, arcId: number, data: PlotArcForm): Promise<PlotArc> {
     return request(`${NOVELS_BASE}/${projectId}/plot-arcs/${arcId}`, {
       method: 'PUT',
       body: JSON.stringify(data)
@@ -361,14 +374,14 @@ export class WritingPrincipleAPI {
     return request(`${NOVELS_BASE}/${projectId}/writing-principles`)
   }
 
-  static async createWritingPrinciple(projectId: string, data: Partial<WritingPrinciple>): Promise<WritingPrinciple> {
+  static async createWritingPrinciple(projectId: string, data: WritingPrincipleForm): Promise<WritingPrinciple> {
     return request(`${NOVELS_BASE}/${projectId}/writing-principles`, {
       method: 'POST',
       body: JSON.stringify(data)
     })
   }
 
-  static async updateWritingPrinciple(projectId: string, principleId: number, data: Partial<WritingPrinciple>): Promise<WritingPrinciple> {
+  static async updateWritingPrinciple(projectId: string, principleId: number, data: WritingPrincipleForm): Promise<WritingPrinciple> {
     return request(`${NOVELS_BASE}/${projectId}/writing-principles/${principleId}`, {
       method: 'PUT',
       body: JSON.stringify(data)

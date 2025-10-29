@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { PlotArcAPI, type PlotArc } from '@/api/novel';
+import { PlotArcAPI, type PlotArc, type PlotArcForm } from '@/api/novel';
 
 const route = useRoute();
 const projectId = route.params.id as string;
@@ -56,7 +56,7 @@ const error = ref<string | null>(null);
 
 const isCreating = ref(false);
 const editingArc = ref<PlotArc | null>(null);
-const form = ref({
+const form = ref<PlotArcForm>({
   description: '',
   status: 'unresolved'
 });
