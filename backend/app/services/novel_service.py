@@ -95,7 +95,11 @@ from ..schemas.novel import (
     NovelProjectSummary,
     NovelSectionResponse,
     NovelSectionType,
+    PlotArcsSectionData,
+    WritingPrinciplesSectionData,
 )
+from ..schemas.plot_arc import PlotArc
+from ..schemas.writing_principle import WritingPrinciple
 from ..services.plot_arc_service import PlotArcService
 from ..services.writing_principle_service import WritingPrincipleService
 
