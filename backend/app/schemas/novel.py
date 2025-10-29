@@ -1,7 +1,10 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
+
+from .plot_arc import PlotArc
+from .writing_principle import WritingPrinciple
 
 
 class ChoiceOption(BaseModel):
@@ -120,11 +123,67 @@ class NovelSectionType(str, Enum):
     RELATIONSHIPS = "relationships"
     CHAPTER_OUTLINE = "chapter_outline"
     CHAPTERS = "chapters"
+    PLOT_ARCS = "plot_arcs"
+    WRITING_PRINCIPLES = "writing_principles"
+
+
+class OverviewSectionData(BaseModel):
+    title: str
+    initial_prompt: str
+    status: str
+    one_sentence_summary: str
+    target_audience: str
+    genre: str
+    style: str
+    tone: str
+    full_synopsis: str
+    updated_at: Optional[str] = None
+
+
+class WorldSettingSectionData(BaseModel):
+    world_setting: Dict[str, Any]
+
+
+class CharactersSectionData(BaseModel):
+    characters: List[Dict[str, Any]]
+
+
+class RelationshipsSectionData(BaseModel):
+    relationships: List[Relationship]
+
+
+class ChapterOutlineSectionData(BaseModel):
+    chapter_outline: List[ChapterOutline]
+
+
+class ChaptersSectionData(BaseModel):
+    chapters: List[Dict[str, Any]]
+    total: int
+
+
+class PlotArcsSectionData(BaseModel):
+    plot_arcs: List[PlotArc]
+
+
+class WritingPrinciplesSectionData(BaseModel):
+    writing_principles: List[WritingPrinciple]
+
+
+SectionData = Union[
+    OverviewSectionData,
+    WorldSettingSectionData,
+    CharactersSectionData,
+    RelationshipsSectionData,
+    ChapterOutlineSectionData,
+    ChaptersSectionData,
+    PlotArcsSectionData,
+    WritingPrinciplesSectionData,
+]
 
 
 class NovelSectionResponse(BaseModel):
     section: NovelSectionType
-    data: Dict[str, Any]
+    data: SectionData
 
 
 class GenerateChapterRequest(BaseModel):
